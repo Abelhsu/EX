@@ -10,6 +10,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javafx.embed.swing.JFXPanel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -17,10 +18,14 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.UIManager;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
@@ -55,9 +60,11 @@ public class MainFrame extends JFrame {
     private DefaultMutableTreeNode dmtnJava;
     private DefaultMutableTreeNode dmtnRoot;
     private DefaultMutableTreeNode dmtnHtml;
+    private JScrollPane spTreeMain;
+    private JFXPanel fxpMain;
 
     public MainFrame() {
-        initAllComponents();
+        initComponents();
     }
 
     public MainFrame(String title) {
@@ -65,16 +72,19 @@ public class MainFrame extends JFrame {
         this.setTitle(title);
     }
 
-    private void initAllComponents() {
+    private void initComponents() {
+        // UIManager's properties
+        UIManager.put("Menu.font", new Font("微軟正黑體", Font.PLAIN, 16));
+        UIManager.put("MenuItem.font", new Font("微軟正黑體", Font.PLAIN, 16));
+        UIManager.put("Tree.font", new Font("微軟正黑體", Font.PLAIN, 14));
+        // Initilize objects
         initMenuBar();
-        //
         initToolBar();
-        initTree();
+        initTreeScrollPane();
         initStatusBar();
         initSearch();
         initTextArea();
         initPanel();
-        //
         initFrame();
     }
 
@@ -90,11 +100,7 @@ public class MainFrame extends JFrame {
 
     private void initMenuBar() {
         mbMain = new JMenuBar();
-        // Menu, MenuItem properties
-        Font ftMenu = new Font("微軟正黑體", Font.PLAIN, 16);
-        Font ftMenuItem = new Font("微軟正黑體", Font.PLAIN, 16);
-        UIManager.put("Menu.font", ftMenu);
-        UIManager.put("MenuItem.font", ftMenuItem);
+
         //
         mnFile = new JMenu("檔案");
         miCreate = new JMenuItem("新增");
@@ -130,10 +136,8 @@ public class MainFrame extends JFrame {
         pack();
     }
 
-    private void initTree() {
-        //
-        Font ftTree = new Font("微軟正黑體", Font.PLAIN, 14);
-        UIManager.put("Tree.font", ftTree);
+    private void initTreeScrollPane() {
+
         //
         dmtnOOP = new DefaultMutableTreeNode("物件導向程式設計", true);
         dmtnC = new DefaultMutableTreeNode("C 語言", true);
@@ -147,12 +151,22 @@ public class MainFrame extends JFrame {
         dmtnRoot.add(dmtnHtml);
         //
         trMain = new JTree(dmtnRoot, true);
+        trMain.addTreeSelectionListener(new TreeSelectionListener() {
+            @Override
+            public void valueChanged(TreeSelectionEvent e) {
+                trMainValueChanged(e);
+            }
+
+        });
+        trMain.putClientProperty("JTree.lineStyle", "Angled");
+        spTreeMain = new JScrollPane(trMain, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        spTreeMain.setWheelScrollingEnabled(true);
     }
 
     private void initPanel() {
         plContent = new JPanel();
         plContent.add(tbMain, BorderLayout.NORTH);
-        plContent.add(trMain, BorderLayout.WEST);
+        plContent.add(spTreeMain, BorderLayout.WEST);
         plContent.add(plStatusBar, BorderLayout.SOUTH);
         plContent.add(plSearch, BorderLayout.EAST);
         plContent.add(taContent, BorderLayout.CENTER);
@@ -177,5 +191,9 @@ public class MainFrame extends JFrame {
 
     private void initTextArea() {
         taContent = new JTextArea();
+    }
+
+    private void trMainValueChanged(TreeSelectionEvent e) {
+        System.out.println(e.getPath());
     }
 }
