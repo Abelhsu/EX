@@ -6,11 +6,13 @@
 package ex;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javafx.embed.swing.JFXPanel;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -24,9 +26,18 @@ import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.UIManager;
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeExpansionListener;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.event.TreeWillExpandListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.DefaultTreeSelectionModel;
+import javax.swing.tree.ExpandVetoException;
+import javax.swing.tree.TreeSelectionModel;
 
 /**
  *
@@ -40,15 +51,13 @@ public class MainFrame extends JFrame {
     private JMenu mnHelp;
     private JToolBar tbMain;
     private JTree trMain;
-    private JPanel plContent;
+    private JPanel plToolBar;
     private JPanel plStatusBar;
     private JPanel plSearch;
     private JMenuItem miCreate;
     private JMenuItem miOpen;
     private JMenuItem miSave;
-    private JLabel lblStatus1;
-    private JLabel lblStatus2;
-    private JLabel lblStatus3;
+    private JLabel lbStatus;
     private JLabel keyword;
     private JButton btnCreate;
     private JButton btnOpen;
@@ -61,7 +70,9 @@ public class MainFrame extends JFrame {
     private DefaultMutableTreeNode dmtnRoot;
     private DefaultMutableTreeNode dmtnHtml;
     private JScrollPane spTreeMain;
-    private JFXPanel fxpMain;
+    private DefaultTreeModel dtmRoot;
+    private TreeSelectionModel sm;
+    private Dimension dimScreen;
 
     public MainFrame() {
         initComponents();
@@ -84,15 +95,14 @@ public class MainFrame extends JFrame {
         initStatusBar();
         initSearch();
         initTextArea();
-        initPanel();
         initFrame();
     }
 
     private void initToolBar() {
         tbMain = new JToolBar();
-        btnCreate = new JButton();
-        btnOpen = new JButton();
-        btnSave = new JButton();
+        btnCreate = new JButton("新增");
+        btnOpen = new JButton("開啟");
+        btnSave = new JButton("存檔");
         tbMain.add(btnCreate);
         tbMain.add(btnOpen);
         tbMain.add(btnSave);
@@ -107,6 +117,9 @@ public class MainFrame extends JFrame {
         miOpen = new JMenuItem("開啟");
         miSave = new JMenuItem("存檔");
         miClose = new JMenuItem("關閉");
+        miCreate.addActionListener(e -> {
+            System.out.println(e.getActionCommand());
+        });
         mnFile.add(miCreate);
         mnFile.add(miOpen);
         mnFile.add(miSave);
@@ -127,12 +140,15 @@ public class MainFrame extends JFrame {
     }
 
     private void initFrame() {
-        setSize(800, 640);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setJMenuBar(mbMain);
-        getContentPane().add(plContent, BorderLayout.WEST);
+        getContentPane().add(tbMain, BorderLayout.NORTH);
+        getContentPane().add(spTreeMain, BorderLayout.WEST);
+        getContentPane().add(plStatusBar, BorderLayout.SOUTH);
+        getContentPane().add(plSearch, BorderLayout.EAST);
+        getContentPane().add(taContent, BorderLayout.CENTER);
         pack();
     }
 
@@ -144,13 +160,124 @@ public class MainFrame extends JFrame {
         dmtnJava = new DefaultMutableTreeNode("Java 語言", true);
         dmtnHtml = new DefaultMutableTreeNode("Html 語言", true);
         dmtnRoot = new DefaultMutableTreeNode("根目錄", true);
+
+        //
         dmtnRoot.add(dmtnOOP);
         dmtnOOP.add(dmtnC);
         dmtnOOP.add(dmtnJava);
         dmtnOOP.add(dmtnJava);
         dmtnRoot.add(dmtnHtml);
+        dtmRoot = new DefaultTreeModel(dmtnRoot);
+
+        dtmRoot.addTreeModelListener(new TreeModelListener() {
+            @Override
+            public void treeNodesChanged(TreeModelEvent e) {
+                dtmRootTreeNodesChanged();
+            }
+
+            @Override
+            public void treeNodesInserted(TreeModelEvent e) {
+
+            }
+
+            @Override
+            public void treeNodesRemoved(TreeModelEvent e) {
+
+            }
+
+            @Override
+            public void treeStructureChanged(TreeModelEvent e) {
+
+            }
+
+        });
         //
-        trMain = new JTree(dmtnRoot, true);
+        trMain = new JTree();
+        trMain.setModel(dtmRoot);
+        //
+        trMain.addTreeExpansionListener(new TreeExpansionListener() {
+            @Override
+            public void treeExpanded(TreeExpansionEvent event) {
+                System.out.println("treeExpanded" + event.getPath());
+            }
+
+            @Override
+            public void treeCollapsed(TreeExpansionEvent event) {
+                System.out.println("treeCollapsed" + event.getPath());
+            }
+
+        });
+        trMain.addTreeWillExpandListener(new TreeWillExpandListener() {
+            @Override
+            public void treeWillExpand(TreeExpansionEvent event) throws ExpandVetoException {
+                System.out.println("treeWillExpand" + event.getPath());
+            }
+
+            @Override
+            public void treeWillCollapse(TreeExpansionEvent event) throws ExpandVetoException {
+                System.out.println("treeWillCollapse" + event.getPath());
+            }
+
+        });
+        trMain.addTreeSelectionListener(new TreeSelectionListener() {
+            @Override
+            public void valueChanged(TreeSelectionEvent e) {
+                System.out.println("valueChanged");
+
+            }
+        });
+        sm = trMain.getSelectionModel();
+        sm.clearSelection();
+        sm.setSelectionMode(DefaultTreeSelectionModel.CONTIGUOUS_TREE_SELECTION);
+//        trMain.setCellRenderer(new TreeCellRenderer() {
+//            @Override
+//            public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+//                return (Component) value;
+//            }
+//
+//        });
+        trMain.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                System.out.println("mouseClicked");
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                System.out.println("mousePressed");
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                System.out.println("mouseReleased");
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                System.out.println("mouseEntered");
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                System.out.println("mouseExited");
+            }
+
+        });
+
+        //
+        trMain.addTreeExpansionListener(new TreeExpansionListener() {
+            @Override
+            public void treeExpanded(TreeExpansionEvent event) {
+                trMainTreeExpanded(event);
+            }
+
+            @Override
+            public void treeCollapsed(TreeExpansionEvent event) {
+                trMainTreeCollapsed(event);
+            }
+
+        });
         trMain.addTreeSelectionListener(new TreeSelectionListener() {
             @Override
             public void valueChanged(TreeSelectionEvent e) {
@@ -160,27 +287,14 @@ public class MainFrame extends JFrame {
         });
         trMain.putClientProperty("JTree.lineStyle", "Angled");
         spTreeMain = new JScrollPane(trMain, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        spTreeMain.setPreferredSize(new Dimension(200, 800));
         spTreeMain.setWheelScrollingEnabled(true);
-    }
-
-    private void initPanel() {
-        plContent = new JPanel();
-        plContent.add(tbMain, BorderLayout.NORTH);
-        plContent.add(spTreeMain, BorderLayout.WEST);
-        plContent.add(plStatusBar, BorderLayout.SOUTH);
-        plContent.add(plSearch, BorderLayout.EAST);
-        plContent.add(taContent, BorderLayout.CENTER);
-        plContent.setSize(800, 640);
     }
 
     private void initStatusBar() {
         plStatusBar = new JPanel(new FlowLayout());
-        lblStatus1 = new JLabel("輸出");
-        lblStatus2 = new JLabel("使用者");
-        lblStatus3 = new JLabel("時間");
-        plStatusBar.add(lblStatus1);
-        plStatusBar.add(lblStatus2);
-        plStatusBar.add(lblStatus3);
+        lbStatus = new JLabel("顯示狀態");
+        plStatusBar.add(lbStatus);
     }
 
     private void initSearch() {
@@ -195,5 +309,17 @@ public class MainFrame extends JFrame {
 
     private void trMainValueChanged(TreeSelectionEvent e) {
         System.out.println(e.getPath());
+    }
+
+    private void trMainTreeCollapsed(TreeExpansionEvent event) {
+        lbStatus.setText(event.getPath().toString());
+    }
+
+    private void trMainTreeExpanded(TreeExpansionEvent event) {
+        lbStatus.setText(event.getPath().getLastPathComponent().toString());
+    }
+
+    private void dtmRootTreeNodesChanged() {
+        System.out.println("addTreeModelListener treeNodesChanged");
     }
 }
