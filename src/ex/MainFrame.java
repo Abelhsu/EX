@@ -21,6 +21,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
@@ -69,10 +70,11 @@ public class MainFrame extends JFrame {
     private DefaultMutableTreeNode dmtnJava;
     private DefaultMutableTreeNode dmtnRoot;
     private DefaultMutableTreeNode dmtnHtml;
-    private JScrollPane spTreeMain;
+    private JScrollPane scpTreeMain;
     private DefaultTreeModel dtmRoot;
     private TreeSelectionModel sm;
     private Dimension dimScreen;
+    private JSplitPane sppTreeMain;
 
     public MainFrame() {
         initComponents();
@@ -145,7 +147,7 @@ public class MainFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setJMenuBar(mbMain);
         getContentPane().add(tbMain, BorderLayout.NORTH);
-        getContentPane().add(spTreeMain, BorderLayout.WEST);
+        getContentPane().add(scpTreeMain, BorderLayout.WEST);
         getContentPane().add(plStatusBar, BorderLayout.SOUTH);
         getContentPane().add(plSearch, BorderLayout.EAST);
         getContentPane().add(taContent, BorderLayout.CENTER);
@@ -153,7 +155,6 @@ public class MainFrame extends JFrame {
     }
 
     private void initTreeScrollPane() {
-
         //
         dmtnOOP = new DefaultMutableTreeNode("物件導向程式設計", true);
         dmtnC = new DefaultMutableTreeNode("C 語言", true);
@@ -229,13 +230,6 @@ public class MainFrame extends JFrame {
         sm = trMain.getSelectionModel();
         sm.clearSelection();
         sm.setSelectionMode(DefaultTreeSelectionModel.CONTIGUOUS_TREE_SELECTION);
-//        trMain.setCellRenderer(new TreeCellRenderer() {
-//            @Override
-//            public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-//                return (Component) value;
-//            }
-//
-//        });
         trMain.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -286,9 +280,11 @@ public class MainFrame extends JFrame {
 
         });
         trMain.putClientProperty("JTree.lineStyle", "Angled");
-        spTreeMain = new JScrollPane(trMain, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        spTreeMain.setPreferredSize(new Dimension(200, 800));
-        spTreeMain.setWheelScrollingEnabled(true);
+        scpTreeMain = new JScrollPane(trMain, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+//        scpTreeMain.setPreferredSize(new Dimension(200, 800));
+        scpTreeMain.setWheelScrollingEnabled(true);
+        sppTreeMain = new JSplitPane();
+        
     }
 
     private void initStatusBar() {
