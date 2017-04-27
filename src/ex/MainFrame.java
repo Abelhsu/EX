@@ -14,8 +14,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import javafx.scene.control.SelectionMode;
-import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -26,7 +24,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
@@ -39,7 +36,7 @@ import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeWillExpandListener;
-import javax.swing.table.DefaultTableColumnModel;
+import javax.swing.table.TableColumn;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.DefaultTreeSelectionModel;
@@ -58,7 +55,6 @@ public class MainFrame extends JFrame {
     private JMenu mnHelp;
     private JToolBar tbMain;
     private JTree trMain;
-    private JPanel plToolBar;
     private JPanel plStatusBar;
     private JPanel plSearch;
     private JMenuItem miCreate;
@@ -203,6 +199,7 @@ public class MainFrame extends JFrame {
         });
         //
         trMain = new JTree();
+
         trMain.setModel(dtmRoot);
         //
         trMain.addTreeExpansionListener(new TreeExpansionListener() {
@@ -309,10 +306,14 @@ public class MainFrame extends JFrame {
     }
 
     private void initTableHR() {
-        tbHR = new JTable(60, 8);
+        tbHR = new JTable(60,6);
+        TableColumn colTitle = tbHR.getColumnModel().getColumn(0);
+        colTitle.setPreferredWidth(400);
+        
         tbHR.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         tbHR.setSelectionBackground(Color.YELLOW);
         tbHR.setCellSelectionEnabled(true);
+        
     }
 
     private void trMainValueChanged(TreeSelectionEvent e) {
@@ -330,4 +331,5 @@ public class MainFrame extends JFrame {
     private void dtmRootTreeNodesChanged() {
         System.out.println("addTreeModelListener treeNodesChanged");
     }
+
 }
