@@ -12,6 +12,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import javax.swing.JButton;
@@ -29,6 +30,9 @@ import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.UIManager;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
 import javax.swing.event.TreeModelEvent;
@@ -36,7 +40,10 @@ import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeWillExpandListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.DefaultTreeSelectionModel;
@@ -77,6 +84,8 @@ public class MainFrame extends JFrame {
     private Dimension dimScreen;
     private JSplitPane sppTreeMain;
     private JTable tbHR;
+    private DefaultTableModel tmMain;
+    private TableCellRenderer crMain;
 
     public MainFrame() {
         initComponents();
@@ -104,9 +113,23 @@ public class MainFrame extends JFrame {
 
     private void initToolBar() {
         tbMain = new JToolBar();
+        // Buttons
         btnCreate = new JButton("新增");
         btnOpen = new JButton("開啟");
         btnSave = new JButton("存檔");
+
+        // Button's Listener
+        btnCreate.addActionListener(e -> {
+            btnCreateActionListener(e);
+        });
+        btnOpen.addActionListener(e -> {
+            btnOpenActionListener(e);
+        });
+        btnSave.addActionListener(e -> {
+            btnSaveActionListener(e);
+        });
+
+        // 
         tbMain.add(btnCreate);
         tbMain.add(btnOpen);
         tbMain.add(btnSave);
@@ -236,35 +259,6 @@ public class MainFrame extends JFrame {
         sm = trMain.getSelectionModel();
         sm.clearSelection();
         sm.setSelectionMode(DefaultTreeSelectionModel.CONTIGUOUS_TREE_SELECTION);
-        trMain.addMouseListener(new MouseListener() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                System.out.println("mouseClicked");
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                System.out.println("mousePressed");
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                System.out.println("mouseReleased");
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                System.out.println("mouseEntered");
-
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                System.out.println("mouseExited");
-            }
-
-        });
-
         //
         trMain.addTreeExpansionListener(new TreeExpansionListener() {
             @Override
@@ -306,18 +300,31 @@ public class MainFrame extends JFrame {
     }
 
     private void initTableHR() {
-        tbHR = new JTable(60,6);
+        tbHR = new JTable(60, 6);
+        tmMain = (DefaultTableModel) tbHR.getModel();
+        crMain = tbHR.getCellRenderer(10, 20);
+        // Listener
+        tmMain.addTableModelListener((e) -> {
+            tmMainTableModelListener(e);
+        });
+        btnCreate.addActionListener(e -> {
+            btnCreateActionListener(e);
+        });
+        //
         TableColumn colTitle = tbHR.getColumnModel().getColumn(0);
         colTitle.setPreferredWidth(400);
-        
         tbHR.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         tbHR.setSelectionBackground(Color.YELLOW);
         tbHR.setCellSelectionEnabled(true);
-        
     }
 
     private void trMainValueChanged(TreeSelectionEvent e) {
         System.out.println(e.getPath());
+    }
+
+    private void tmMainTableModelListener(TableModelEvent e) {
+        
+        System.out.println("tmMainTableModelListener");
     }
 
     private void trMainTreeCollapsed(TreeExpansionEvent event) {
@@ -332,4 +339,15 @@ public class MainFrame extends JFrame {
         System.out.println("addTreeModelListener treeNodesChanged");
     }
 
+    private void btnCreateActionListener(ActionEvent e) {
+        System.out.println(e.getActionCommand());
+    }
+
+    private void btnOpenActionListener(ActionEvent e) {
+        System.out.println(e.getActionCommand());
+    }
+
+    private void btnSaveActionListener(ActionEvent e) {
+        System.out.println(e.getActionCommand());
+    }
 }
