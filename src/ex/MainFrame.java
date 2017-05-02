@@ -12,9 +12,14 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import javax.swing.Action;
+import static javax.swing.Action.MNEMONIC_KEY;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -86,8 +91,13 @@ public class MainFrame extends JFrame {
     private JTable tbHR;
     private DefaultTableModel tmMain;
     private TableCellRenderer crMain;
+    private Action mainAction;
+    private Action exitAction;
+    private JButton btnExit;
 
     public MainFrame() {
+        initFonts();
+        initActions();
         initComponents();
     }
 
@@ -96,11 +106,18 @@ public class MainFrame extends JFrame {
         this.setTitle(title);
     }
 
-    private void initComponents() {
-        // UIManager's properties
+    private void initFonts() {
         UIManager.put("Menu.font", new Font("微軟正黑體", Font.PLAIN, 16));
         UIManager.put("MenuItem.font", new Font("微軟正黑體", Font.PLAIN, 16));
         UIManager.put("Tree.font", new Font("微軟正黑體", Font.PLAIN, 14));
+    }
+
+    private void initActions() {
+        mainAction = new MainAction("Action", new ImageIcon(getClass().getResource("./icon/copy.gif"), "圖示"), "Action Desc", new Integer(KeyEvent.VK_L));
+        exitAction = new ExitAction("Action", new ImageIcon(getClass().getResource("./icon/copy.gif")));
+    }
+
+    private void initComponents() {
         // Initilize objects
         initMenuBar();
         initToolBar();
@@ -115,9 +132,12 @@ public class MainFrame extends JFrame {
         tbMain = new JToolBar();
         // Buttons
         btnCreate = new JButton("新增");
-        btnOpen = new JButton("開啟");
-        btnSave = new JButton("存檔");
 
+        btnOpen = new JButton(mainAction);
+        btnOpen.setText("開啟");
+        btnSave = new JButton("存檔");
+        btnExit = new JButton(exitAction);
+        btnExit.setText("離開");
         // Button's Listener
         btnCreate.addActionListener(e -> {
             btnCreateActionListener(e);
@@ -133,6 +153,7 @@ public class MainFrame extends JFrame {
         tbMain.add(btnCreate);
         tbMain.add(btnOpen);
         tbMain.add(btnSave);
+        tbMain.add(btnExit);
     }
 
     private void initMenuBar() {
@@ -141,9 +162,11 @@ public class MainFrame extends JFrame {
         //
         mnFile = new JMenu("檔案");
         miCreate = new JMenuItem("新增");
-        miOpen = new JMenuItem("開啟");
+        miOpen = new JMenuItem(mainAction);
+        miOpen.setText("開啟");
         miSave = new JMenuItem("存檔");
-        miClose = new JMenuItem("關閉");
+        miClose = new JMenuItem(exitAction);
+        miClose.setText("關閉");
         miCreate.addActionListener(e -> {
             System.out.println(e.getActionCommand());
         });
@@ -152,12 +175,12 @@ public class MainFrame extends JFrame {
         mnFile.add(miSave);
         mnFile.add(miClose);
         //
-        miClose.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.exit(0);
-            }
-        });
+//        miClose.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                System.exit(0);
+//            }
+//        });
         //
         mnEdit = new JMenu("編輯");
         mnHelp = new JMenu("輔助");
@@ -302,7 +325,7 @@ public class MainFrame extends JFrame {
     private void initTableHR() {
         tbHR = new JTable(60, 6);
         tmMain = (DefaultTableModel) tbHR.getModel();
-        crMain = tbHR.getCellRenderer(10, 20);
+//        crMain = tbHR.getCellRenderer(10, 20);
         // Listener
         tmMain.addTableModelListener((e) -> {
             tmMainTableModelListener(e);
@@ -323,7 +346,7 @@ public class MainFrame extends JFrame {
     }
 
     private void tmMainTableModelListener(TableModelEvent e) {
-        
+
         System.out.println("tmMainTableModelListener");
     }
 
@@ -350,4 +373,5 @@ public class MainFrame extends JFrame {
     private void btnSaveActionListener(ActionEvent e) {
         System.out.println(e.getActionCommand());
     }
+
 }
