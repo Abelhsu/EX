@@ -5,20 +5,21 @@
  */
 package ex;
 
+import ex.db.Employees;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import javax.swing.Action;
-import static javax.swing.Action.MNEMONIC_KEY;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -35,9 +36,7 @@ import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.UIManager;
-import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
 import javax.swing.event.TreeModelEvent;
@@ -48,7 +47,6 @@ import javax.swing.event.TreeWillExpandListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.DefaultTreeSelectionModel;
@@ -94,8 +92,17 @@ public class MainFrame extends JFrame {
     private Action mainAction;
     private Action exitAction;
     private JButton btnExit;
+    private EntityManagerFactory emfHR;
+    private EntityManager emEmployees;
+    private EntityManagerFactory emfOE;
+    private EntityManagerFactory emfPM;
+    private EntityManagerFactory emfSCOTT;
+    private EntityManager emCountries;
+    private EntityManager emDepartments;
 
     public MainFrame() {
+        initDB();
+        initMetaData();
         initFonts();
         initActions();
         initComponents();
@@ -104,6 +111,10 @@ public class MainFrame extends JFrame {
     public MainFrame(String title) {
         this();
         this.setTitle(title);
+    }
+
+    private void initMetaData() {
+
     }
 
     private void initFonts() {
@@ -372,6 +383,26 @@ public class MainFrame extends JFrame {
 
     private void btnSaveActionListener(ActionEvent e) {
         System.out.println(e.getActionCommand());
+    }
+
+    private void initDB() {
+        emfHR = Persistence.createEntityManagerFactory("HRPU");
+        emfOE = Persistence.createEntityManagerFactory("OEPU");
+        emfPM = Persistence.createEntityManagerFactory("PMPU");
+        emfSCOTT = Persistence.createEntityManagerFactory("SCOTTPU");
+        emEmployees = emfHR.createEntityManager();
+        emCountries = emfHR.createEntityManager();
+        emDepartments = emfHR.createEntityManager();
+        //
+        TypedQuery<Employees> query = emEmployees.createQuery("select e from Employees e", Employees.class);
+        List<Employees> results = query.getResultList();
+        //
+        for (Employees result : results) {
+            System.out.print(result.getFirstName() + " " + result.getLastName());
+            System.out.println();
+        }
+//        Employees emp = new Employees(158);
+//        em.persist(emp);
     }
 
 }

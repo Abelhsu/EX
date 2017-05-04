@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ex.archived;
+package ex.zarchived;
 
 import javafx.scene.text.Font;
 import javafx.application.Platform;
